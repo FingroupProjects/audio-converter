@@ -22,9 +22,19 @@ docker-compose up -d
 curl http://localhost:8000/
 
 # Конвертация файла
+# Поддерживаемые форматы: mp3, ogg, aac, m4a, wav, mp4
 curl -X POST http://localhost:8000/convert \
   -F "file=@your_audio.wav" \
   -F "target_format=mp3"
+
+# Примеры конвертации в разные форматы
+curl -X POST http://localhost:8000/convert \
+  -F "file=@voice.m4a" \
+  -F "target_format=ogg"
+
+curl -X POST http://localhost:8000/convert \
+  -F "file=@audio.mp3" \
+  -F "target_format=wav"
 ```
 
 **Ожидаемый ответ:**
@@ -73,6 +83,15 @@ download_url=$(echo $response | grep -o '"download_url":"[^"]*"' | cut -d'"' -f4
 # 3. Скачиваем файл
 curl -O "$download_url"
 ```
+
+## 🎵 Поддерживаемые форматы
+
+- **mp3** — MPEG Audio Layer III
+- **ogg** — Ogg Vorbis
+- **aac** — Advanced Audio Coding
+- **m4a** — MPEG-4 Audio
+- **wav** — Waveform Audio File Format
+- **mp4** — MPEG-4 Part 14
 
 ## 🌐 Доступ с других компьютеров
 

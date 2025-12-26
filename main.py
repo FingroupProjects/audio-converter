@@ -24,7 +24,7 @@ OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 TEMP_DIR = Path("/tmp/audio_converter")
 TEMP_DIR.mkdir(parents=True, exist_ok=True)
 
-SUPPORTED_FORMATS = ["mp3", "ogg"]
+SUPPORTED_FORMATS = ["mp3", "ogg", "aac", "m4a", "wav", "mp4"]
 MAX_FILE_SIZE = 100 * 1024 * 1024  # 100 MB максимум
 
 

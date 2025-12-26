@@ -71,6 +71,10 @@ curl -X POST http://localhost:8000/convert \
 
 - **mp3** — MPEG Audio Layer III
 - **ogg** — Ogg Vorbis
+- **aac** — Advanced Audio Coding
+- **m4a** — MPEG-4 Audio
+- **wav** — Waveform Audio File Format
+- **mp4** — MPEG-4 Part 14 (аудио + видео контейнер)
 
 ## 🛠 API эндпоинты
 
@@ -80,7 +84,7 @@ curl -X POST http://localhost:8000/convert \
 
 **Параметры (multipart/form-data):**
 - `file` (обязательный) — загружаемый аудиофайл
-- `target_format` (обязательный) — формат конвертации: `mp3` или `ogg`
+- `target_format` (обязательный) — формат конвертации: `mp3`, `ogg`, `aac`, `m4a`, `wav`, `mp4`
 - `download` (опциональный) — если `true`, вернёт файл для скачивания
 
 **Ответы:**
