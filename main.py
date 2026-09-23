@@ -8,6 +8,8 @@ from typing import Optional
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Request
 from fastapi.responses import FileResponse, JSONResponse
 
+from converter import ConversionError, convert_file
+
 # Настройка логирования
 logging.basicConfig(
     level=logging.INFO,
@@ -106,43 +108,14 @@ async def convert_audio(
         
         file_size = temp_input_path.stat().st_size
         logger.info(f"File saved successfully: {file_size} bytes")
-        
-        # Выполняем конвертацию через ffmpeg
-        command = [
-            "ffmpeg",
-            "-i", str(temp_input_path),
-            "-y",  # перезаписать выходной файл если существует
-            "-loglevel", "error",  # показывать только ошибки
-            str(output_path)
-        ]
-        
-        result = subprocess.run(
-            command,
-            capture_output=True,
-            text=True,
-            timeout=300  # таймаут 5 минут для больших файлов
-        )
-        
-        # Проверяем результат выполнения
-        if result.returncode != 0:
-            # Очищаем stderr от лишней информации для пользователя
-            error_msg = result.stderr.strip()
-            
-            # Определяем тип ошибки для более понятного сообщения
-            if "moov atom not found" in error_msg or "Invalid data" in error_msg:
-                user_error = "The uploaded file is corrupted or not a valid audio file. Please check the file and try again."
-            elif "No such file or directory" in error_msg:
-                user_error = "Input file not found. Please try uploading again."
-            else:
-                # Берём только последние строки с реальной ошибкой
-                error_lines = [line for line in error_msg.split('\n') if line.strip()]
-                user_error = '\n'.join(error_lines[-5:]) if error_lines else error_msg
-            
-            raise HTTPException(
-                status_code=400,
-                detail=user_error
-            )
-        
+
+        # ffmpeg сам по себе отвергает часть записей MediaRecorder.
+        # convert_file сначала чинит заголовок, потом конвертирует.
+        try:
+            convert_file(temp_input_path, output_path, target_format)
+        except ConversionError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
         # Проверяем, что выходной файл создан
         if not output_path.exists() or output_path.stat().st_size == 0:
             logger.error(f"Output file not created or empty: {output_path}")

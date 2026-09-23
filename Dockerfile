@@ -16,7 +16,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Копируем код приложения
-COPY main.py .
+COPY main.py converter.py .
 
 # Создаём директорию для выходных файлов
 RUN mkdir -p /app/output
