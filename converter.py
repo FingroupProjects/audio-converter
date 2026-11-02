@@ -171,10 +171,9 @@ def _run_ffmpeg(source: Path, output_path: Path, target_format: str) -> tuple[in
         "-i",
         str(source),
         "-vn",
+        *_codec_args(target_format),
         str(output_path),
     ]
-    # target_format уже зашит в расширение output_path. Аргумент оставлен для ясности вызова.
-    del target_format
     try:
         result = subprocess.run(
             command,
@@ -186,6 +185,20 @@ def _run_ffmpeg(source: Path, output_path: Path, target_format: str) -> tuple[in
         raise ConversionError("Conversion timeout: file is too large or processing took too long") from exc
 
     return result.returncode, (result.stderr or "").strip()
+
+
+def _codec_args(target_format: str) -> list[str]:
+    # Без -c:a ffmpeg кладёт в .ogg Vorbis. WhatsApp и Telegram показывают
+    # голосовое с волной только для OGG/Opus, поэтому кодек задаём явно.
+    if target_format == "ogg":
+        return [
+            "-c:a", "libopus",
+            "-b:a", "32k",
+            "-ac", "1",
+            "-ar", "48000",
+            "-application", "voip",
+        ]
+    return []
 
 
 def _output_ok(path: Path) -> bool:
